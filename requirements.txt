@@ -7,7 +7,7 @@ h11==0.16.0
 httpcore==1.0.9
 httpx==0.28.1
 idna==3.11
-pinecone-client==6.0.0
+pinecone
 pinecone-plugin-interface==0.0.7
 pydantic==2.12.5
 pydantic_core==2.41.5
