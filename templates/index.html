@@ -117,7 +117,7 @@
         {% if answer %}
         <div class="response">
             <h3>🤖 AI Trade Intelligence Report</h3>
-            {{ answer }}
+           {{ answer | safe }}
         </div>
         {% endif %}
 

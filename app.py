@@ -3,7 +3,7 @@ from pinecone import Pinecone
 from dotenv import load_dotenv
 from flask import Flask, render_template, request
 import google.generativeai as genai
-
+import markdown
 
 # -----------------------------
 # Load environment variables
@@ -83,33 +83,78 @@ Details: {fields}
 # -----------------------------
 # Gemini Formatter
 # -----------------------------
+# -----------------------------
+# Gemini Formatter (Improved + Guarded)
+# -----------------------------
 def generate_answer(user_query, results, record_type):
 
-    if not results:
-        return "⚠️ No relevant records found."
+    # 🚫 If no Pinecone results
+    if not results or len(results) == 0:
+        return "⚠️ **Not able to answer this query based on available trade data.**"
 
     context = build_context(results)
 
     prompt = f"""
+You are TIPE AI – Trade Intent Prediction Engine.
+
 User Query:
 {user_query}
 
 Record Type:
 {record_type}
 
-Retrieved Data:
+Retrieved Trade Records:
 {context}
 
-Instructions:
-- Rank results clearly.
-- Present in professional trade intelligence style.
-- Explain briefly why each match is relevant.
-- Keep answer structured and readable.
+IMPORTANT RULES:
+
+1. If retrieved data is NOT relevant to the user query, respond ONLY with:
+   "Not able to answer based on available trade intelligence."
+
+2. If relevant, generate a structured professional trade intelligence report.
+3.If user entered a number like 3-4 then give only that many answers in the ranked results section. If no number is mentioned then give 5 answers.
+4.if a length is menthined like 3-4 then give only that many insights in the strategic insights section. If no number is mentioned then give 5 insights.lines only
+STRICT FORMAT:
+
+# 🤖 Trade Intelligence Report
+
+## 🔎 Executive Summary
+(2-3 lines summary explaining findings)
+
+## 📊 Ranked Results
+
+For each result:
+**Rank X**
+- **Entity ID:**
+- **Location:**
+- **Industry:**
+- **Revenue:**
+- **Intent Score:**
+- **Risk Indicators:**
+- **Why Relevant:**
+
+## 📈 Strategic Insights
+- Insight 1
+- Insight 2
+- Insight 3
+
+DO NOT mention raw JSON.
+DO NOT output technical metadata.
+Keep formatting clean with markdown-style bold headings.
 """
 
-    response = model.generate_content(prompt)
-    return response.text
+    try:
+        response = model.generate_content(prompt)
+        output = response.text.strip()
 
+        # 🔍 Safety guard if model ignores instruction
+        if "not able" in output.lower():
+            return "⚠️ **Not able to answer this query based on available trade data.**"
+
+        return output
+
+    except Exception:
+        return "⚠️ **AI processing error. Please try again.**"
 
 # -----------------------------
 # Routes
@@ -125,10 +170,12 @@ def home():
         namespace, record_type = detect_namespace(user_query)
         results = retrieve(namespace, user_query)
 
-        answer = generate_answer(user_query, results, record_type)
+        raw_answer = generate_answer(user_query, results, record_type)
+
+        # 🔥 Convert markdown to HTML
+        answer = markdown.markdown(raw_answer)
 
     return render_template("index.html", answer=answer)
-
 
 # -----------------------------
 # Run App
