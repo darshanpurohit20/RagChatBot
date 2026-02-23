@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trade Intelligence AI</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 40px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        input[type=text] {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 25px;
+            margin-top: 10px;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .response {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🌍 Trade Intelligence AI Assistant</h2>
+
+        <form method="POST">
+            <input type="text" name="query" placeholder="Enter your trade query..." required>
+            <button type="submit">Ask</button>
+        </form>
+
+        {% if answer %}
+        <div class="response">
+            <h3>🤖 Response:</h3>
+            {{ answer }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
