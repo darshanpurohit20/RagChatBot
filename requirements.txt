@@ -21,4 +21,4 @@ urllib3==2.6.3
 google-generativeai
 flask
 markdown
-
+gunicorn
