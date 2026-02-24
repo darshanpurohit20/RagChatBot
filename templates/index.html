@@ -3,7 +3,6 @@
 <head>
     <title>TIPE AI – Trade Intent Prediction Engine</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <style>
         body {
             margin: 0;
@@ -12,17 +11,67 @@
             color: #e2e8f0;
         }
 
+        /* ── Loader Overlay ── */
+        #loader-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        #loader-overlay.active {
+            display: flex;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.15);
+            border-top-color: #38bdf8;
+            border-right-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loader-text {
+            color: #e2e8f0;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .loader-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%   { content: ''; }
+            25%  { content: '.'; }
+            50%  { content: '..'; }
+            75%  { content: '...'; }
+            100% { content: ''; }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.5; }
+        }
+        /* ── End Loader ── */
+
         .container {
             max-width: 900px;
             margin: 60px auto;
             padding: 30px;
         }
-
         .header {
             text-align: center;
             margin-bottom: 40px;
         }
-
         .header h1 {
             font-size: 32px;
             margin-bottom: 10px;
@@ -30,12 +79,10 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .header p {
             color: #94a3b8;
             font-size: 15px;
         }
-
         .card {
             background: #1e293b;
             padding: 25px;
@@ -43,15 +90,10 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
         form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    input[type=text] {
-        width: 100%;
-        text-align: left;
-    }
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
         input[type=text] {
             width: 100%;
             padding: 15px;
@@ -61,28 +103,38 @@
             background: #0f172a;
             color: #e2e8f0;
             outline: none;
+            text-align: left;
+            box-sizing: border-box;
         }
-
         input::placeholder {
             color: #64748b;
         }
-
         button {
             margin-top: 15px;
-            padding: 12px 25px;
+            padding: 12px 30px;
             border-radius: 8px;
             border: none;
             font-size: 15px;
             background: linear-gradient(to right, #3b82f6, #6366f1);
             color: white;
             cursor: pointer;
-            transition: 0.3s;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
         button:hover {
             opacity: 0.85;
         }
-
+        .btn-spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
         .response {
             margin-top: 30px;
             background: #0f172a;
@@ -92,12 +144,10 @@
             line-height: 1.6;
             border-left: 4px solid #6366f1;
         }
-
         .response h3 {
             margin-top: 0;
             color: #38bdf8;
         }
-
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -106,34 +156,54 @@
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
 
+    <!-- Loader Overlay -->
+    <div id="loader-overlay">
+        <div class="spinner"></div>
+        <p class="loader-text">🔍 Analyzing Trade Intelligence<span class="loader-dots"></span></p>
+    </div>
+
+    <div class="container">
         <div class="header">
             <h1>TIPE AI</h1>
             <p>Trade Intent Prediction Engine – Powered by Semantic Intelligence</p>
         </div>
-
         <div class="card">
-            <form method="POST">
-                <input type="text" name="query" 
+            <form method="POST" id="trade-form">
+                <input type="text" name="query"
                        placeholder="Ask something like: Top solar exporters in Gujarat with high revenue" required>
-                <button type="submit">Analyze Trade Data</button>
+                <button type="submit" id="analyze-btn">
+                    <span class="btn-spinner" id="btn-spinner"></span>
+                    <span id="btn-label">Analyze Trade Data</span>
+                </button>
             </form>
         </div>
 
         {% if answer %}
         <div class="response">
             <h3>🤖 AI Trade Intelligence Report</h3>
-           {{ answer | safe }}
+            {{ answer | safe }}
         </div>
         {% endif %}
 
         <div class="footer">
             TIPE AI © 2026 | Semantic Trade Intelligence Platform
         </div>
-
     </div>
+
+    <script>
+        document.getElementById("trade-form").addEventListener("submit", function () {
+            // Show full-screen overlay
+            document.getElementById("loader-overlay").classList.add("active");
+
+            // Also animate the button itself
+            document.getElementById("btn-spinner").style.display = "block";
+            document.getElementById("btn-label").textContent = "Analyzing...";
+            document.getElementById("analyze-btn").disabled = true;
+            document.getElementById("analyze-btn").style.opacity = "0.7";
+        });
+    </script>
+
 </body>
 </html>
