@@ -1,7 +1,38 @@
-# 🌍 TIPE(Trade Intent Prediction Engine) Intelligence AI
-### RAG-Powered Export Intelligence Engine
 
-An AI-powered Trade Intelligence & Intent Prediction Engine for semantic search across exporters, importers, and global trade news — generating structured AI intelligence reports.
+
+# 🤖 TIPE AI – Trade Intent Prediction Engine
+
+A RAG-powered trade intelligence chatbot built with **Flask**, **Pinecone**, and **Google Gemini**.
+
+## Features
+
+- 🔍 Semantic search over trade records via **Pinecone**
+- 🤖 AI-powered answers using **Gemini 2.5 Flash**
+- 📊 Structured trade intelligence reports
+- 🌐 Supports Exporters, Importers, and Global News namespaces
+
+## 🔐 Environment Variables (Secrets)
+
+> ⚠️ Do **NOT** upload a `.env` file. Instead, add these as **Secrets** in your HF Space settings:
+
+| Secret Name | Description |
+|---|---|
+| `PINECONE_API_KEY` | Your Pinecone API key |
+| `PINECONE_INDEX` | Your Pinecone index name (e.g. `trade-index`) |
+| `GEMINI_API_KEYS` | Your Google Gemini API key(use comma seperated for multiple keys) |
+
+### How to add Secrets on Hugging Face:
+1. Go to your Space → **Settings** tab
+2. Scroll to **Repository secrets**
+3. Click **New secret** and add each variable above
+
+## Usage
+
+Ask questions like:
+- *"Show me top exporters in textile industry"*
+- *"Find importers looking for electronics"*
+- *"Latest trade risk news"*
+
 
 ---
 
